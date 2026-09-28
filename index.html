@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Smertedagbog</title>
+  <meta name="description" content="Enkel dagbog til smerter i hoved og nakke. Alle data gemmes kun på din telefon.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F3F1EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16181A" media="(prefers-color-scheme: dark)">
+
+  <!-- Hjemmeskærm / standalone på iPhone -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Smertedagbog">
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <noscript><p class="noscript">Denne app kræver, at JavaScript er slået til.</p></noscript>
+
+  <main id="main">
+
+    <!-- NY REGISTRERING -->
+    <section id="view-new" class="view" aria-labelledby="h-new">
+      <header class="view-header">
+        <h1 id="h-new">Ny registrering</h1>
+        <p class="sub" id="now-label"></p>
+      </header>
+      <div id="new-form-slot"></div>
+    </section>
+
+    <!-- HISTORIK -->
+    <section id="view-history" class="view" aria-labelledby="h-history" hidden>
+      <header class="view-header">
+        <h1 id="h-history">Historik</h1>
+      </header>
+
+      <div class="card chart-card">
+        <div class="chart-head">
+          <h2>Udvikling</h2>
+          <div class="segmented small" role="group" aria-label="Periode">
+            <button type="button" data-range="7" aria-pressed="true">7 dage</button>
+            <button type="button" data-range="30" aria-pressed="false">30 dage</button>
+          </div>
+        </div>
+        <div id="chart"></div>
+        <div class="legend" aria-hidden="true">
+          <span class="lg"><svg width="30" height="12" viewBox="0 0 30 12"><line class="ch-head" x1="2" y1="6" x2="28" y2="6"/><circle class="pt-head" cx="15" cy="6" r="3.5"/></svg>Hoved</span>
+          <span class="lg"><svg width="30" height="12" viewBox="0 0 30 12"><line class="ch-neck" x1="2" y1="6" x2="28" y2="6"/><circle class="pt-neck" cx="15" cy="6" r="3.5"/></svg>Nakke</span>
+        </div>
+        <p class="chart-summary" id="chart-summary"></p>
+      </div>
+
+      <div id="history-list"></div>
+    </section>
+
+    <!-- DETALJER -->
+    <section id="view-detail" class="view" aria-labelledby="h-detail" hidden>
+      <button type="button" class="back" data-action="back-history">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Historik
+      </button>
+      <div id="detail-body"></div>
+      <div class="actions">
+        <button type="button" class="btn" data-action="edit">Redigér</button>
+        <button type="button" class="btn danger" data-action="delete">Slet registrering</button>
+      </div>
+    </section>
+
+    <!-- REDIGÉR -->
+    <section id="view-edit" class="view" aria-labelledby="h-edit" hidden>
+      <button type="button" class="back" data-action="back-detail">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Tilbage
+      </button>
+      <header class="view-header">
+        <h1 id="h-edit">Redigér registrering</h1>
+      </header>
+      <div id="edit-form-slot"></div>
+    </section>
+
+    <!-- INDSTILLINGER -->
+    <section id="view-settings" class="view" aria-labelledby="h-settings" hidden>
+      <header class="view-header">
+        <h1 id="h-settings">Indstillinger</h1>
+      </header>
+
+      <div class="card note">
+        <h2>Dine data</h2>
+        <p>Alle registreringer gemmes kun her på telefonen. Intet sendes nogen steder hen, og der er ingen konto.</p>
+        <p>Hvis appen fjernes fra hjemmeskærmen, eller hvis websitedata i Safari ryddes, forsvinder registreringerne. Tag derfor en backup jævnligt – fx én gang om ugen – og gem filen i Filer eller iCloud Drive.</p>
+        <p class="meta" id="settings-meta"></p>
+      </div>
+
+      <div class="card">
+        <h2>Backup</h2>
+        <button type="button" class="btn" data-action="export-json">Eksportér backup</button>
+        <label class="btn" for="import-file">Importér backup</label>
+        <input type="file" id="import-file" class="visually-hidden">
+        <p class="hint">Ved import lægges registreringerne sammen med dem, der allerede er her. Der opstår ikke dubletter.</p>
+      </div>
+
+      <div class="card">
+        <h2>Del med lægen</h2>
+        <button type="button" class="btn" data-action="export-csv">Eksportér som CSV</button>
+        <p class="hint">En fil, der kan åbnes i Excel, Numbers eller Google Sheets.</p>
+      </div>
+
+      <div class="card">
+        <h2>Slet data</h2>
+        <button type="button" class="btn danger" data-action="delete-all">Slet alle data</button>
+      </div>
+
+      <p class="version">Smertedagbog · version 1.0</p>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Hovedmenu">
+    <button type="button" data-tab="new" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      <span>Ny registrering</span>
+    </button>
+    <button type="button" data-tab="history">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span>Historik</span>
+    </button>
+    <button type="button" data-tab="settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+      <span>Indstillinger</span>
+    </button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toast-text"></span></div>
+
+  <dialog id="dlg" aria-labelledby="dlg-title">
+    <form method="dialog">
+      <h2 id="dlg-title"></h2>
+      <p id="dlg-msg"></p>
+      <div id="dlg-req" hidden>
+        <label for="dlg-input" id="dlg-req-label"></label>
+        <input id="dlg-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+      </div>
+      <div class="dialog-actions">
+        <button type="submit" value="cancel" class="btn" id="dlg-cancel">Annullér</button>
+        <button type="submit" value="ok" class="btn" id="dlg-ok">OK</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
